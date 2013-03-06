@@ -5,6 +5,7 @@ A*  0 is the enable node,1 is disable node,
     9 is the path node,2 is the find node
     
 0 0 0 0 2 0 2 2 1 0 0 0 0 0 0 0
+
 0 9 9 2 2 2 2 1 0 0 0 0 0 0 0 0 
 
 0 0 9 0 2 2 2 1 0 0 0 0 0 0 0 0 
