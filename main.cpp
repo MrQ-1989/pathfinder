@@ -56,7 +56,9 @@ int load_config(std::string file_name, Json::Value &cfg)
 int main()
 {
 	Json::Value map_cfg;
-	load_config("/home/workspace/pathfinder/src/map.json", map_cfg);
+	
+    if (load_config("./map.json", map_cfg) < 0)
+        return -1;
 
 	int node_num = map_cfg["node"]["nodeColumn"].asInt() * map_cfg["node"]["nodeRow"].asInt();
 	PathFinder *finder;
