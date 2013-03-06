@@ -97,8 +97,14 @@ int main()
 			}
 			if (flag == false)
 			{
-				printf("0 ");
+                if (finder->work_data_[index].state_ == NS_CLOSED)
+                {
+                    printf("2 ");
+                }
+                else
+			    	printf("0 ");
 			}
+
 		}
 		printf("\n");
 
