@@ -1,5 +1,7 @@
 #include "pathfinder.h"
 #include <string.h>
+#include <math.h>
+
 void pathfinder_alloc(struct PathFinder *&finder, int node_num)
 {
 	finder = (PathFinder*) malloc(sizeof(struct PathFinder));
@@ -35,6 +37,27 @@ int node_distance(PathFinder *finder, int start_index, int end_index)
 	int ry_end = end_index % finder->node_max_column_;
 
 	return abs(rx_start - rx_end) + abs(ry_start - ry_end);
+}
+
+int pure_distance(PathFinder *finder, int start_index, int end_index)
+{
+	int rx_start = start_index / finder->node_max_column_;
+	int ry_start = start_index % finder->node_max_column_;
+
+	int rx_end = end_index / finder->node_max_column_;
+	int ry_end = end_index % finder->node_max_column_;
+
+	Point start, end;
+
+	start.x_ = rx_start * finder->node_width_ + (finder->node_width_ > 1);
+	start.y_ = ry_start * finder->node_height_ + (finder->node_height_ > 1);
+
+	end.x_ = rx_end * finder->node_width_ + (finder->node_width_ > 1);
+	end.y_ = ry_end * finder->node_height_ + (finder->node_height_ > 1);
+
+	double distance = sqrt(pow((float)(start.x_ - end.x_), 2) + pow((float)(start.y_ - end.y_), 2));
+
+	return distance;
 }
 
 void pathfinder_init(struct PathFinder *finder, Json::Value &cfg)
@@ -145,7 +168,21 @@ void insert_to_heap(struct PathFinder *finder, int node_index)
 		parent = PARENT(index);
 		if (parent != 0)
 		{
-			if (finder->work_data_[finder->work_heap_->heap_[index]].f_ < finder->work_data_[finder->work_heap_->heap_[parent]].f_)
+			if (finder->work_data_[finder->work_heap_->heap_[index]].f_ == finder->work_data_[finder->work_heap_->heap_[parent]].f_)
+			{
+				int index_distance = pure_distance(finder, finder->work_heap_->heap_[index], finder->end_index_);
+				int parent_distance = pure_distance(finder, finder->work_heap_->heap_[parent], finder->end_index_);
+				if (index_distance < parent_distance)
+				{
+					int node_tmp = finder->work_heap_->heap_[parent];
+					finder->work_heap_->heap_[parent] = finder->work_heap_->heap_[index];
+					finder->work_heap_->heap_[index] = node_tmp;
+					index = parent;
+				}
+				else
+					break;
+			}
+			else if (finder->work_data_[finder->work_heap_->heap_[index]].f_ < finder->work_data_[finder->work_heap_->heap_[parent]].f_)
 			{
 				int node_tmp = finder->work_heap_->heap_[parent];
 				finder->work_heap_->heap_[parent] = finder->work_heap_->heap_[index];
@@ -175,7 +212,7 @@ int pathfinder_findparent(struct PathFinder *finder, int child_index)
 				{
 					finder->work_data_[parent_index].state_ = NS_OPEN;
 					finder->work_data_[parent_index].g_ = node_distance(finder, parent_index, finder->end_index_);
-					;
+
 					finder->work_data_[parent_index].h_ = node_distance(finder, parent_index, finder->end_index_);
 					finder->work_data_[parent_index].f_ = finder->work_data_[parent_index].g_ + finder->work_data_[parent_index].h_;
 					finder->work_data_[parent_index].parent_index_ = child_index;
