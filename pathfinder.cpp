@@ -16,6 +16,11 @@ void pathfinder_free(struct PathFinder *finder)
 	free(finder);
 }
 
+bool can_straight_line(struct PathFinder *finder,int index)
+{
+    return true;
+}
+
 int node_index(struct PathFinder *finder, Point point)
 {
 	int node_width = finder->node_width_;
